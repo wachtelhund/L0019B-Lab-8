@@ -3,7 +3,7 @@ import * as CONSTANTS from './constants';
 
 const map = L.map('map').setView(CONSTANTS.GAMMELSTAD, 16);
 CONSTANTS.LAYERS.HOT.addTo(map);
-const control = L.control.layers(CONSTANTS.LAYERS, CONSTANTS.TOGGLE_LAYERS).addTo(map);
+L.control.layers(CONSTANTS.LAYERS, CONSTANTS.TOGGLE_LAYERS).addTo(map);
 
 // @ts-ignore
 const legendControl = L.control({position: 'bottomleft'});
@@ -24,7 +24,7 @@ map.on('click', function(e) {
     const latlng = e.latlng;
     
     const url = getFeatureInfoUrl(latlng);
-    const info = getFeatureInfo(url)
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             if ((data as any).features.length > 0) {
@@ -56,21 +56,6 @@ map.on('click', function(e) {
             }
         });
 });
-
-
-async function fileExists(url: string) {
-    return fetch(url)
-        .then(response => {
-            if (response.status === 200) {
-                return true;
-            } else {
-                return false;
-            }
-        })
-        .catch(() => {
-            return false;
-        });
-}
 
 function getFeatureInfoUrl(latlng: L.LatLng): string {
     const crs = L.CRS.EPSG3857;
@@ -124,13 +109,4 @@ function openPopup(latlng: L.LatLng, content: string) {
         .setLatLng(latlng)
         .setContent(content)
         .openOn(map);
-}
-
-function getFeatureInfo(url: string): Promise<Response> {
-    return fetch(url);
-}
-
-
-function centerMap() {
-    map.setView(CONSTANTS.GAMMELSTAD, 16);
 }
